@@ -1,0 +1,319 @@
+import java.util.*;
+import java.io.*;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+
+public class LogisticsHubGUI extends JFrame {
+    
+    // Structural collections mapping out data paths
+    private LinkedList<CarrierInfo> carrierList = new LinkedList<>();
+    private Queue<CarrierInfo> queue1 = new ArrayDeque<>();
+    private Queue<CarrierInfo> queue2 = new ArrayDeque<>();
+    private Queue<CarrierInfo> queue3 = new ArrayDeque<>();
+    private Stack<CarrierInfo> dispatchedStack = new Stack<>();
+
+    // UI Tables
+    private JTable tblMasterData, tblQueue1, tblQueue2, tblQueue3, tblStack;
+    private DefaultTableModel modelMaster, modelQ1, modelQ2, modelQ3, modelStack;
+    
+    // Interactive Input Fields
+    private JTextField txtCarrierId, txtCarrierName, txtShipmentId, txtPackageType, txtDate, txtTime, txtTax, txtOrigin, txtDest;
+    private JComboBox<String> cmbFleetType, cmbEcoScore;
+    private JButton btnAddManual, btnLoadFile, btnRoute, btnProcess;
+    private JLabel lblStatus;
+
+    public LogisticsHubGUI() {
+        super("UPTM Smart Logistics Sustainable Workspace Hub");
+        initializeGUI();
+    }
+
+    private void initializeGUI() {
+        setSize(1350, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(10, 10));
+
+        // 1. TOP PANEL: Title & Operational Pipeline Controls
+        JPanel pnlTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        pnlTop.setBackground(new Color(41, 128, 185));
+        
+        btnLoadFile = new JButton("1. Auto-Load File (>=100 Records)");
+        btnRoute = new JButton("2. Execute Conveyor Routing");
+        btnProcess = new JButton("3. Run Pipeline Batches");
+        
+        lblStatus = new JLabel("System Status: Awaiting Action");
+        lblStatus.setForeground(Color.WHITE);
+        lblStatus.setFont(new Font("Arial", Font.BOLD, 12));
+
+        pnlTop.add(btnLoadFile);
+        pnlTop.add(btnRoute);
+        pnlTop.add(btnProcess);
+        pnlTop.add(lblStatus);
+
+        // 2. LEFT PANEL: Interactive Manual Entry Form
+        JPanel pnlInteractiveForm = new JPanel(new GridBagLayout());
+        pnlInteractiveForm.setBorder(BorderFactory.createTitledBorder("Interactive Manual Data Entry Panel"));
+        pnlInteractiveForm.setPreferredSize(new Dimension(360, 800));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 6, 4, 6);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Form Fields Initialization
+        txtCarrierId = new JTextField("CR999", 12);
+        txtCarrierName = new JTextField("Pos Malaysia Green", 12);
+        cmbFleetType = new JComboBox<>(new String[]{"Electric Van", "Drone Delivery", "Hybrid Truck", "Freight Train", "LNG Cargo Vessel", "Biofuel Air Freight"});
+        txtShipmentId = new JTextField("SHP777", 12);
+        txtPackageType = new JTextField("Electronics Bulk", 12);
+        cmbEcoScore = new JComboBox<>(new String[]{"1", "2", "3", "4", "5"});
+        cmbEcoScore.setSelectedIndex(4);
+        txtDate = new JTextField("2026-06-25", 12);
+        txtTime = new JTextField("24.0", 12);
+        txtTax = new JTextField("350.00", 12);
+        txtOrigin = new JTextField("Port Klang", 12);
+        txtDest = new JTextField("Kuching", 12);
+        btnAddManual = new JButton("Add Record to System");
+
+        // UI Placement Assembly Loop
+        Component[] comps = {
+            new JLabel("Carrier ID:"), txtCarrierId,
+            new JLabel("Carrier Name:"), txtCarrierName,
+            new JLabel("Fleet Type:"), cmbFleetType,
+            new JLabel("Shipment ID:"), txtShipmentId,
+            new JLabel("Package Type:"), txtPackageType,
+            new JLabel("Eco Priority Score (1-5):"), cmbEcoScore,
+            new JLabel("Dispatch Date:"), txtDate,
+            new JLabel("Transit Time (Hours):"), txtTime,
+            new JLabel("Carbon Tax Cost (RM):"), txtTax,
+            new JLabel("Origin Location:"), txtOrigin,
+            new JLabel("Destination Location:"), txtDest
+        };
+
+        int r = 0;
+        for (int i = 0; i < comps.length; i += 2) {
+            gbc.gridx = 0; gbc.gridy = r; pnlInteractiveForm.add(comps[i], gbc);
+            gbc.gridx = 1; pnlInteractiveForm.add(comps[i+1], gbc);
+            r++;
+        }
+        gbc.gridx = 0; gbc.gridy = r; gbc.gridwidth = 2;
+        gbc.insets = new Insets(15, 5, 5, 5);
+        pnlInteractiveForm.add(btnAddManual, gbc);
+
+        // 3. CENTER PANEL: Outputs Display Tabs
+        JTabbedPane tabbedPane = new JTabbedPane();
+
+        modelMaster = new DefaultTableModel(new String[]{"Carrier ID", "Name", "Fleet Class", "Shipment ID", "Route From -> To", "Tax"}, 0);
+        tblMasterData = new JTable(modelMaster);
+        tabbedPane.addTab("Phase 1: Master LinkedList View", new JScrollPane(tblMasterData));
+
+        JPanel pnlQueues = new JPanel(new GridLayout(3, 1, 5, 5));
+        modelQ1 = new DefaultTableModel(new String[]{"Carrier Name", "Fleet Type", "Shipments Count", "Accumulated Tax"}, 0);
+        tblQueue1 = new JTable(modelQ1);
+        JPanel pnlQ1 = new JPanel(new BorderLayout());
+        pnlQ1.setBorder(BorderFactory.createTitledBorder("LANE 1: Regional Micro-Distribution Fleet Queue"));
+        pnlQ1.add(new JScrollPane(tblQueue1), BorderLayout.CENTER);
+
+        modelQ2 = new DefaultTableModel(new String[]{"Carrier Name", "Fleet Type", "Shipments Count", "Accumulated Tax"}, 0);
+        tblQueue2 = new JTable(modelQ2);
+        JPanel pnlQ2 = new JPanel(new BorderLayout());
+        pnlQ2.setBorder(BorderFactory.createTitledBorder("LANE 2: Cross-Border Express Logistics Queue"));
+        pnlQ2.add(new JScrollPane(tblQueue2), BorderLayout.CENTER);
+
+        modelQ3 = new DefaultTableModel(new String[]{"Carrier Name", "Fleet Type", "Shipments Count", "Accumulated Tax"}, 0);
+        tblQueue3 = new JTable(modelQ3);
+        JPanel pnlQ3 = new JPanel(new BorderLayout());
+        pnlQ3.setBorder(BorderFactory.createTitledBorder("LANE 3: Industrial Heavy Bulk Haulage Queue"));
+        pnlQ3.add(new JScrollPane(tblQueue3), BorderLayout.CENTER);
+
+        pnlQueues.add(pnlQ1); pnlQueues.add(pnlQ2); pnlQueues.add(pnlQ3);
+        tabbedPane.addTab("Phase 2: Queue Conveyor Lanes", pnlQueues);
+
+        modelStack = new DefaultTableModel(new String[]{"Cleared Carrier Name", "Assigned Fleet System", "Total Loaded Items", "Settled Carbon Tax"}, 0);
+        tblStack = new JTable(modelStack);
+        tabbedPane.addTab("Phase 3: DispatchedStack Departure Log", new JScrollPane(tblStack));
+
+        add(pnlTop, BorderLayout.NORTH);
+        add(pnlInteractiveForm, BorderLayout.WEST);
+        add(tabbedPane, BorderLayout.CENTER);
+
+        // Action Listeners Execution Wire-up
+        btnAddManual.addActionListener(e -> addManualRecordAction());
+        btnLoadFile.addActionListener(e -> loadManifestFileAction());
+        btnRoute.addActionListener(e -> routeConveyorAction());
+        btnProcess.addActionListener(e -> processPipelineAction());
+    }
+
+    private void addManualRecordAction() {
+        try {
+            String cId = txtCarrierId.getText().trim();
+            String cName = txtCarrierName.getText().trim();
+            String fType = cmbFleetType.getSelectedItem().toString();
+            String sId = txtShipmentId.getText().trim();
+            String pType = txtPackageType.getText().trim();
+            int ecoScore = Integer.parseInt(cmbEcoScore.getSelectedItem().toString());
+            String date = txtDate.getText().trim();
+            double time = Double.parseDouble(txtTime.getText().trim());
+            double tax = Double.parseDouble(txtTax.getText().trim());
+            String origin = txtOrigin.getText().trim();
+            String dest = txtDest.getText().trim();
+
+            if (cId.isEmpty() || cName.isEmpty() || sId.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in all core identifier data fields.", "Warning", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            ShipmentInfo shipment = new ShipmentInfo(sId, pType, ecoScore, date, time, tax, origin, dest);
+
+            CarrierInfo carrier = null;
+            for (CarrierInfo c : carrierList) {
+                if (c.getCarrierId().equals(cId)) {
+                    carrier = c;
+                    break;
+                }
+            }
+            if (carrier == null) {
+                carrier = new CarrierInfo(cId, cName, fType);
+                carrierList.add(carrier);
+            }
+            carrier.addShipment(shipment);
+
+            modelMaster.addRow(new Object[]{cId, cName, fType, sId, origin + " -> " + dest, "RM " + tax});
+            lblStatus.setText("Status: Manual Entry added (" + sId + ")");
+            JOptionPane.showMessageDialog(this, "Successfully combined record into the Master LinkedList.");
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Please enter valid numbers for score, time, and tax data items.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void loadManifestFileAction() {
+        carrierList.clear();
+        modelMaster.setRowCount(0);
+        String filename = "supply_chain_manifest.txt";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            int recordCounter = 0;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                String[] tokens = line.split(",");
+                if (tokens.length < 11) continue;
+
+                String cId = tokens[0].trim();
+                String cName = tokens[1].trim();
+                String fType = tokens[2].trim();
+                String sId = tokens[3].trim();
+                String pType = tokens[4].trim();
+                int ecoScore = Integer.parseInt(tokens[5].trim());
+                String date = tokens[6].trim();
+                double time = Double.parseDouble(tokens[7].trim());
+                double tax = Double.parseDouble(tokens[8].trim());
+                String origin = tokens[9].trim();
+                String dest = tokens[10].trim();
+
+                ShipmentInfo shipment = new ShipmentInfo(sId, pType, ecoScore, date, time, tax, origin, dest);
+
+                CarrierInfo carrier = null;
+                for (CarrierInfo c : carrierList) {
+                    if (c.getCarrierId().equals(cId)) {
+                        carrier = c;
+                        break;
+                    }
+                }
+                if (carrier == null) {
+                    carrier = new CarrierInfo(cId, cName, fType);
+                    carrierList.add(carrier);
+                }
+                carrier.addShipment(shipment);
+                
+                modelMaster.addRow(new Object[]{cId, cName, fType, sId, origin + " -> " + dest, "RM " + tax});
+                recordCounter++;
+            }
+            lblStatus.setText("Status: Loaded! Parsed Records: " + recordCounter);
+            JOptionPane.showMessageDialog(this, "Successfully compiled " + recordCounter + " text rows into Master LinkedList.");
+        } catch (IOException | NumberFormatException ex) {
+            lblStatus.setText("Status: Error Reading File!");
+            JOptionPane.showMessageDialog(this, "Make sure supply_chain_manifest.txt exists in the source folder.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void routeConveyorAction() {
+        if (carrierList.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter or load data first.");
+            return;
+        }
+        queue1.clear(); queue2.clear(); queue3.clear();
+        modelQ1.setRowCount(0); modelQ2.setRowCount(0); modelQ3.setRowCount(0);
+
+        boolean alternateToLane1 = true;
+
+        for (CarrierInfo carrier : carrierList) {
+            int shipmentVolume = carrier.getShipments().size();
+
+            if (shipmentVolume > 3) {
+                queue3.add(carrier);
+                modelQ3.addRow(new Object[]{carrier.getCarrierName(), carrier.getFleetType(), shipmentVolume, "RM " + carrier.getTotalCarbonTaxCost()});
+            } else {
+                if (alternateToLane1) {
+                    queue1.add(carrier);
+                    modelQ1.addRow(new Object[]{carrier.getCarrierName(), carrier.getFleetType(), shipmentVolume, "RM " + carrier.getTotalCarbonTaxCost()});
+                } else {
+                    queue2.add(carrier);
+                    modelQ2.addRow(new Object[]{carrier.getCarrierName(), carrier.getFleetType(), shipmentVolume, "RM " + carrier.getTotalCarbonTaxCost()});
+                }
+                alternateToLane1 = !alternateToLane1;
+            }
+        }
+        lblStatus.setText("Status: Conveyor Sorting Streams Allocated.");
+        JOptionPane.showMessageDialog(this, "Queues populated!\nLane 1: " + queue1.size() + " | Lane 2: " + queue2.size() + " | Lane 3 (Bulk): " + queue3.size());
+    }
+
+    private void processPipelineAction() {
+        if (queue1.isEmpty() && queue2.isEmpty() && queue3.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Lanes are empty. Run Step 2 first.");
+            return;
+        }
+        dispatchedStack.clear();
+        modelStack.setRowCount(0);
+
+        while (!queue1.isEmpty() || !queue2.isEmpty() || !queue3.isEmpty()) {
+            int count1 = 0;
+            while (!queue1.isEmpty() && count1 < 5) {
+                dispatchedStack.push(queue1.poll());
+                count1++;
+            }
+            int count2 = 0;
+            while (!queue2.isEmpty() && count2 < 5) {
+                dispatchedStack.push(queue2.poll());
+                count2++;
+            }
+            int count3 = 0;
+            while (!queue3.isEmpty() && count3 < 5) {
+                dispatchedStack.push(queue3.poll());
+                count3++;
+            }
+        }
+
+        while (!dispatchedStack.isEmpty()) {
+            CarrierInfo cleared = dispatchedStack.pop();
+            modelStack.addRow(new Object[]{
+                cleared.getCarrierName(), 
+                cleared.getFleetType(), 
+                cleared.getShipments().size(), 
+                String.format("RM %.2f", cleared.getTotalCarbonTaxCost())
+            });
+        }
+        
+        lblStatus.setText("Status: Core Pipeline Manifests Dispatched via Stack operations.");
+        JOptionPane.showMessageDialog(this, "Dispatched Stack settlement output logged successfully!");
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception ignored) {}
+            new LogisticsHubGUI().setVisible(true);
+        });
+    }
+}
