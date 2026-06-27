@@ -1,0 +1,44 @@
+public class ShipmentInfo {
+    private String shipmentId;
+    private String packageType;
+    private int ecoPriorityScore;
+    private String dispatchDate;
+    private double estimatedTransitTime;
+    private double carbonTaxCost;
+    private String origin;
+    private String destination;
+
+    public ShipmentInfo(String shipmentId, String packageType, int ecoPriorityScore, 
+    String dispatchDate, double estimatedTransitTime, double carbonTaxCost, 
+    String origin, String destination) {
+        this.shipmentId = shipmentId;
+        this.packageType = packageType;
+        this.ecoPriorityScore = ecoPriorityScore;
+        this.dispatchDate = dispatchDate;
+        this.estimatedTransitTime = estimatedTransitTime;
+        this.carbonTaxCost = carbonTaxCost;
+        this.origin = origin;
+        this.destination = destination;
+    }
+
+    public String getShipmentId() { return shipmentId; }
+
+    public String getPackageType() { return packageType; }
+
+    public int getEcoPriorityScore() { return ecoPriorityScore; }
+
+    public String getDispatchDate() { return dispatchDate; }
+
+    public double getEstimatedTransitTime() { return estimatedTransitTime; }
+
+    public double getCarbonTaxCost() { return carbonTaxCost; }
+
+    public String getOrigin() { return origin; }
+
+    public String getDestination() { return destination; }
+
+    @Override
+    public String toString() {
+        return shipmentId + " - " + packageType;
+    }
+}

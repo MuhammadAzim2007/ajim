@@ -1,2 +1,0 @@
-# ajim
-CODING FINAL SWC
