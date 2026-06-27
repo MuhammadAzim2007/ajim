@@ -1,0 +1,37 @@
+import java.util.*;
+
+public class CarrierInfo {
+    private String carrierId;
+    private String carrierName;
+    private String fleetType;
+    private List<ShipmentInfo> shipments; // Has-A Relationship
+
+    public CarrierInfo(String carrierId, String carrierName, String fleetType) {
+        this.carrierId = carrierId;
+        this.carrierName = carrierName;
+        this.fleetType = fleetType;
+        this.shipments = new ArrayList<>();
+    }
+
+    public void addShipment(ShipmentInfo shipment) {
+        this.shipments.add(shipment);
+    }
+
+    public double getTotalCarbonTaxCost() {
+        double total = 0;
+        for (ShipmentInfo s : shipments) {
+            total += s.getCarbonTaxCost();
+        }
+        return total;
+    }
+
+    public String getCarrierId() { return carrierId; }
+
+    public String getCarrierName() { return carrierName; }
+
+    public String getFleetType() { return fleetType; }
+
+    public List<ShipmentInfo> getShipments() {
+        return new ArrayList<>(shipments);
+    }
+}
