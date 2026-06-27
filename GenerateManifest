@@ -1,0 +1,121 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class GenerateManifest {
+    public static void main(String[] args) {
+        String filename = "supply_chain_manifest.txt";
+        
+        String data = "CR001,Pos Malaysia Green,Electric Van,SHP101,Electronics,4,2026-06-01,2.5,15.50,Shah Alam,Kuala Lumpur\n" +
+"CR001,Pos Malaysia Green,Electric Van,SHP102,Documents,5,2026-06-01,1.2,5.00,Shah Alam,Petaling Jaya\n" +
+"CR001,Pos Malaysia Green,Electric Van,SHP103,Clothing,4,2026-06-02,3.0,12.00,Shah Alam,Klang\n" +
+"CR001,Pos Malaysia Green,Electric Van,SHP104,Medical Kits,5,2026-06-02,2.0,20.00,Shah Alam,Subang Jaya\n" +
+"CR002,DHL Express Asia,Drone Delivery,SHP201,Vaccines,5,2026-06-01,0.5,45.00,Penang Island,Bayan Lepas\n" +
+"CR002,DHL Express Asia,Drone Delivery,SHP202,Microchips,5,2026-06-02,0.8,60.00,Penang Island,Seberang Perai\n" +
+"CR003,KTM Cargo Eco,Freight Train,SHP301,Automotive Steel,3,2026-06-01,12.0,450.00,Ipoh,Port Klang\n" +
+"CR003,KTM Cargo Eco,Freight Train,SHP302,Industrial Timber,3,2026-06-03,14.5,520.00,Alor Setar,Port Klang\n" +
+"CR003,KTM Cargo Eco,Freight Train,SHP303,Mineral Ore,2,2026-06-04,18.0,680.00,Padang Besar,Port Klang\n" +
+"CR003,KTM Cargo Eco,Freight Train,SHP304,Heavy Machinery,2,2026-06-05,10.5,410.00,Taiping,Shah Alam\n" +
+"CR004,MISC Maritime,LNG Cargo Vessel,SHP401,Petroleum Sub,3,2026-06-01,48.0,2400.00,Bintulu,Port Klang\n" +
+"CR004,MISC Maritime,LNG Cargo Vessel,SHP402,Liquefied Gas,3,2026-06-04,72.0,3120.00,Miri,Johor Port\n" +
+"CR005,Malaysian EcoAir,Biofuel Air Freight,SHP501,Fresh Seafood,4,2026-06-02,1.8,850.00,Kota Kinabalu,Sepang\n" +
+"CR005,Malaysian EcoAir,Biofuel Air Freight,SHP502,E-Commerce Bulk,3,2026-06-03,2.2,920.00,Kuching,Sepang\n" +
+"CR006,City-Link Local,Hybrid Truck,SHP601,Groceries,4,2026-06-01,4.5,45.50,Melaka,Kuala Lumpur\n" +
+"CR006,City-Link Local,Hybrid Truck,SHP602,Home Appliances,4,2026-06-02,5.0,75.00,Muar,Kuala Lumpur\n" +
+"CR007,GDEX Regional,Electric Van,SHP701,Cosmetics,5,2026-06-01,3.2,18.00,Johor Bahru,Batu Pahat\n" +
+"CR007,GDEX Regional,Electric Van,SHP702,Office Supplies,4,2026-06-02,2.8,14.00,Johor Bahru,Kluang\n" +
+"CR008,NinjaVan Eco,Drone Delivery,SHP801,Lab Samples,5,2026-06-01,0.4,35.00,Kuala Lumpur,Cheras\n" +
+"CR008,NinjaVan Eco,Drone Delivery,SHP802,Smartphones,5,2026-06-02,0.6,50.00,Kuala Lumpur,Ampang\n" +
+"CR009,FedEx Borneo,Biofuel Air Freight,SHP901,Spare Parts,3,2026-06-02,1.5,410.00,Labuan,Miri\n" +
+"CR009,FedEx Borneo,Biofuel Air Freight,SHP902,Pharmaceuticals,4,2026-06-04,2.0,580.00,Sepang,Sandakan\n" +
+"CR010,J&T Green Fleet,Hybrid Truck,SHP001,Fast Fashion,4,2026-06-01,6.0,85.00,Kuantan,Kuala Lumpur\n" +
+"CR010,J&T Green Fleet,Hybrid Truck,SHP002,Plastics Eco,3,2026-06-03,7.5,110.00,Kemaman,Kuala Lumpur\n" +
+"CR011,Skyline Logistics,Electric Van,SH111,Art Prints,5,2026-06-05,1.5,9.50,Cyberjaya,Putrajaya\n" +
+"CR011,Skyline Logistics,Electric Van,SH112,Books,5,2026-06-05,1.8,11.00,Cyberjaya,Serdang\n" +
+"CR012,Oceanic Green,LNG Cargo Vessel,SH121,Scrap Metal,3,2026-06-06,36.0,1850.00,Sandakan,Port Klang\n" +
+"CR012,Oceanic Green,LNG Cargo Vessel,SH122,Raw Rubber,4,2026-06-08,42.0,2100.00,Tawau,Johor Port\n" +
+"CR013,Trans-Borneo,Hybrid Truck,SH131,Frozen Food,4,2026-06-05,12.0,230.00,Kuching,Sibu\n" +
+"CR013,Trans-Borneo,Hybrid Truck,SH132,Construction Mat,3,2026-06-07,15.5,310.00,Kuching,Miri\n" +
+"CR014,EcoMovers,Electric Van,SH141,Furniture Pack,4,2026-06-06,4.0,55.00,Rawang,Kuala Lumpur\n" +
+"CR014,EcoMovers,Electric Van,SH142,Mattresses,4,2026-06-07,4.8,65.00,Sungei Buloh,Kuala Lumpur\n" +
+"CR015,Alpha Courier,Drone Delivery,SH151,Blood Vials,5,2026-06-08,0.3,40.00,Seremban,Nilai\n" +
+"CR015,Alpha Courier,Drone Delivery,SH152,Biomedical Sensors,5,2026-06-09,0.5,55.00,Seremban,Port Dickson\n" +
+"CR016,MegaFreight,Freight Train,SH161,Cement Bags,2,2026-06-07,8.0,380.00,Gua Musang,Tumpat\n" +
+"CR016,MegaFreight,Freight Train,SH162,Coal Clean,2,2026-06-09,11.5,490.00,Kuala Lipis,Kota Bharu\n" +
+"CR017,Pacific BioAir,Biofuel Air Freight,SH171,Live Plants,4,2026-06-08,3.0,720.00,Penang,Kuching\n" +
+"CR017,Pacific BioAir,Biofuel Air Freight,SH172,Lab Chemicals,4,2026-06-10,3.5,890.00,Sepang,Kota Kinabalu\n" +
+"CR018,Express Green,Electric Van,SH181,Toys,5,2026-06-09,2.2,16.50,Klang,Subang\n" +
+"CR018,Express Green,Electric Van,SH182,Footwear,4,2026-06-10,2.5,14.00,Klang,Shah Alam\n" +
+"CR019,Borneo SeaHub,LNG Cargo Vessel,SH191,Palm Oil Bio,3,2026-06-10,24.0,1500.00,Lahad Datu,Bintulu\n" +
+"CR019,Borneo SeaHub,LNG Cargo Vessel,SH192,Cocoa Beans,4,2026-06-12,30.0,1750.00,Tawau,Bintulu\n" +
+"CR020,EastCoast Line,Hybrid Truck,SH201,Keropok Bulk,4,2026-06-10,8.0,95.00,Kuala Terengganu,Kuantan\n" +
+"CR020,EastCoast Line,Hybrid Truck,SH202,Textiles,4,2026-06-11,9.0,120.00,Kota Bharu,Kuantan\n" +
+"CR021,Utara EcoExpress,Electric Van,SH211,Hardware Tools,4,2026-06-12,3.0,22.00,Alor Setar,Sungai Petani\n" +
+"CR021,Utara EcoExpress,Electric Van,SH212,Gardening Supplies,5,2026-06-13,2.5,19.00,Alor Setar,Kangar\n" +
+"CR022,ZettaDrone,Drone Delivery,SH221,Insulin Packs,5,2026-06-11,0.6,42.00,Malacca Town,Jasin\n" +
+"CR022,ZettaDrone,Drone Delivery,SH222,Tech Components,5,2026-06-12,0.7,48.00,Malacca Town,Alor Gajah\n" +
+"CR023,Malaya RailEco,Freight Train,SH231,Fertilizer Eco,3,2026-06-12,15.0,610.00,Gemas,Johor Bahru\n" +
+"CR023,Malaya RailEco,Freight Train,SH232,Paper Rolls,4,2026-06-14,13.0,540.00,Mentakab,Port Klang\n" +
+"CR024,Global JetBio,Biofuel Air Freight,SH241,Luxury Goods,4,2026-06-13,1.2,980.00,Sepang,Penang\n" +
+"CR024,Global JetBio,Biofuel Air Freight,SH242,Precision Lenses,5,2026-06-15,1.4,1150.00,Sepang,Senai\n" +
+"CR025,Southern Hybrid,Hybrid Truck,SH251,Ceramic Tiles,3,2026-06-14,5.5,135.00,Kluang,Johor Bahru\n" +
+"CR025,Southern Hybrid,Hybrid Truck,SH252,Glassware,4,2026-06-15,6.2,160.00,Yong Peng,Johor Bahru\n" +
+"CR026,E-Link Express,Electric Van,SH261,Protein Powder,5,2026-06-15,2.0,15.00,Puchong,Kuala Lumpur\n" +
+"CR026,E-Link Express,Electric Van,SH262,Sporting Goods,4,2026-06-16,2.4,18.50,Puchong,Petaling Jaya\n" +
+"CR027,Vortex Shipping,LNG Cargo Vessel,SH271,Crude BioOil,3,2026-06-16,50.0,2800.00,Kemaman,Kerteh\n" +
+"CR027,Vortex Shipping,LNG Cargo Vessel,SH272,Iron Rods,3,2026-06-19,65.0,3120.00,Kuantan Port,Singapore\n" +
+"CR028,InterState Eco,Hybrid Truck,SH281,Grains,4,2026-06-17,10.0,190.00,Anson,Kuala Lumpur\n" +
+"CR028,InterState Eco,Hybrid Truck,SH282,Canned Goods,4,2026-06-18,11.2,210.00,Taiping,Kuala Lumpur\n" +
+"CR029,SwiftFlyer Drone,Drone Delivery,SH291,Antivenom,5,2026-06-16,0.2,65.00,Kangar,Arau\n" +
+"CR029,SwiftFlyer Drone,Drone Delivery,SH292,Hard Drives,5,2026-06-17,0.4,55.00,Kangar,Padang Besar\n" +
+"CR030,National EcoRail,Freight Train,SH301,Bauxite Ore,2,2026-06-18,16.0,730.00,Kuantan,Port Klang\n" +
+"CR030,National EcoRail,Freight Train,SH302,Granite Blocks,2,2026-06-20,20.5,890.00,Ipoh,Johor Bahru\n" +
+"CR031,EcoCargo Air,Biofuel Air Freight,SH311,Sea Food Cargo,4,2026-06-19,2.5,820.00,Tawau,Sepang\n" +
+"CR031,EcoCargo Air,Biofuel Air Freight,SH312,Printed Circuit,5,2026-06-20,2.1,940.00,Kuching,Penang\n" +
+"CR032,GreenGlide,Electric Van,SH321,Pet Supplies,5,2026-06-20,1.4,10.50,Kajang,Bangi\n" +
+"CR032,GreenGlide,Electric Van,SH322,Snack Boxes,5,2026-06-21,1.1,8.00,Kajang,Semenyih\n" +
+"CR033,Meridian Line,LNG Cargo Vessel,SH331,Wheat Bulk,4,2026-06-21,72.0,3120.00,Port Klang,Labuan\n" +
+"CR033,Meridian Line,LNG Cargo Vessel,SH332,Soybeans,4,2026-06-24,80.0,3120.00,Port Klang,Kuching\n" +
+"CR034,Capital Movers,Hybrid Truck,SH341,Office Tables,4,2026-06-22,3.5,65.00,Semenyih,Putrajaya\n" +
+"CR034,Capital Movers,Hybrid Truck,SH342,Filing Cabinets,4,2026-06-23,4.0,70.00,Semenyih,Cyberjaya\n" +
+"CR035,Hexa Drone,Drone Delivery,SH351,First Aid Packs,5,2026-06-22,0.5,38.00,Sibu,Kapit\n" +
+"CR035,Hexa Drone,Drone Delivery,SH352,Emergency Radio,5,2026-06-23,0.6,44.00,Sibu,Kanowit\n" +
+"CR036,Central Freight,Freight Train,SH361,Gypsum Boards,3,2026-06-23,9.5,410.00,Batu Gajah,Port Klang\n" +
+"CR036,Central Freight,Freight Train,SH362,Brick Pallets,3,2026-06-25,11.0,460.00,Rawang,Batu Pahat\n" +
+"CR037,AeroGreen Cargo,Biofuel Air Freight,SH371,Engine Sensors,5,2026-06-24,1.9,870.00,Senai,Sepang\n" +
+"CR037,AeroGreen Cargo,Biofuel Air Freight,SH372,Vitamins Bulk,4,2026-06-26,2.3,790.00,Sepang,Miri\n" +
+"CR038,SmartVan Trans,Electric Van,SH381,Teas & Coffees,5,2026-06-25,2.6,19.50,Gombak,Kuala Lumpur\n" +
+"CR038,SmartVan Trans,Electric Van,SH382,Confectionery,5,2026-06-26,2.1,15.00,Gombak,Petaling Jaya\n" +
+"CR039,Horizon Shipping,LNG Cargo Vessel,SH391,Bio Ethanol,3,2026-06-25,55.0,2950.00,Bintulu,Johor Port\n" +
+"CR039,Horizon Shipping,LNG Cargo Vessel,SH392,Copper Wires,4,2026-06-28,60.0,3120.00,Port Klang,Kota Kinabalu\n" +
+"CR040,CrossBorder Hyb,Hybrid Truck,SH401,Detergent Eco,4,2026-06-26,14.0,280.00,Bukit Kayu Hitam,Ipoh\n" +
+"CR040,CrossBorder Hyb,Hybrid Truck,SH402,Solar Inverters,5,2026-06-27,16.5,390.00,Shah Alam,Padang Besar\n" +
+"CR041,EcoWeave Post,Electric Van,SH411,Organic Towels,5,2026-06-26,1.7,13.00,Nilai,Seremban\n" +
+"CR041,EcoWeave Post,Electric Van,SH412,Bedding Sets,4,2026-06-27,2.1,16.50,Nilai,Sepang\n" +
+"CR042,Falcon Aero,Drone Delivery,SH421,Cardiac Monitor,5,2026-06-26,0.3,70.00,Kota Bharu,Pasir Mas\n" +
+"CR042,Falcon Aero,Drone Delivery,SH422,Drone Battery,5,2026-06-27,0.4,45.00,Kota Bharu,Kubang Kerian\n" +
+"CR043,IronTrack Eco,Freight Train,SH431,Steel Coils,2,2026-06-26,13.5,580.00,Pasir Gudang,Port Klang\n" +
+"CR043,IronTrack Eco,Freight Train,SH432,Aluminium Bars,3,2026-06-28,15.0,620.00,Gemas,Port Klang\n" +
+"CR044,Starlight Air,Biofuel Air Freight,SH441,Server Racks,4,2026-06-27,2.8,1100.00,Sepang,Kuching\n" +
+"CR044,Starlight Air,Biofuel Air Freight,SH442,Optic Modules,5,2026-06-29,2.0,950.00,Penang,Senai\n" +
+"CR045,Peninsular Hyb,Hybrid Truck,SH451,Mineral Water,4,2026-06-27,7.0,110.00,Taiping,Shah Alam\n" +
+"CR045,Peninsular Hyb,Hybrid Truck,SH452,Packaging Box,4,2026-06-28,6.5,95.00,Sitiawan,Kuala Lumpur\n" +
+"CR046,DirectVan Green,Electric Van,SH461,Baby Clothes,5,2026-06-27,1.9,14.00,Ampang,Kuala Lumpur\n" +
+"CR046,DirectVan Green,Electric Van,SH462,Skincare Serum,5,2026-06-28,1.2,10.00,Ampang,Petaling Jaya\n" +
+"CR047,Titan Bulk Sea,LNG Cargo Vessel,SH471,Liquefied Argon,3,2026-06-27,90.0,3120.00,Kerteh,Port Klang\n" +
+"CR047,Titan Bulk Sea,LNG Cargo Vessel,SH472,Molten Sulfur,2,2026-06-30,110.0,3120.00,Kemaman,Johor Port\n" +
+"CR048,Island Connect,Hybrid Truck,SH481,Rice Sacks,4,2026-06-28,4.5,75.00,Kangar,Butterworth\n" +
+"CR048,Island Connect,Hybrid Truck,SH482,Cooking Oil,4,2026-06-29,5.2,85.00,Alor Setar,Butterworth\n" +
+"CR049,Quantum Drone,Drone Delivery,SH491,Plasma Packs,5,2026-06-28,0.4,55.00,Kuala Terengganu,Marang\n" +
+"CR049,Quantum Drone,Drone Delivery,SH492,Lab Glassware,5,2026-06-29,0.5,40.00,Kuala Terengganu,Gong Badak\n" +
+"CR050,InterIsland Rail,Freight Train,SH501,Plywood Crate,3,2026-06-29,22.0,920.00,Mentakab,Tumpat\n" +
+"CR050,InterIsland Rail,Freight Train,SH502,Rubber Sheets,4,2026-06-30,19.0,840.00,Gua Musang,Port Klang";
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            writer.write(data);
+            System.out.println("Success! 'supply_chain_manifest.txt' has been generated in your working directory.");
+        } catch (IOException e) {
+            System.out.println("An error occurred while creating the file: " + e.getMessage());
+        }
+    }
+}
